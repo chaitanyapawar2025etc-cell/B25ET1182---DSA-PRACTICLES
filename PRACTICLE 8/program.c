@@ -1,103 +1,72 @@
 #include <stdio.h>
-#include <string.h>
-#include <math.h>
-
-#define size 80
-
-struct stack
-{
-    double s[size];
-    int top;
-} st;
-
-void push(double);
-double pop(void);
-double post(char []);
-
-int main()
-{
-    char expr[size];
-    int len;
-    double result;
-
-    printf("\nEnter a postfix expression : ");
-    scanf("%s", expr);
-
-    len = strlen(expr);
-    expr[len] = '$';
-    expr[len + 1] = '\0';
-
-    result = post(expr);
-    printf("\nThe value of the expression is %f\n", result);
-    return 0;
+#include <stdlib.h>
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed!\n");
+        return NULL;
+    }
+    newNode->data = value;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+struct Node* insert(struct Node* root, int value) {
+    // If the tree/subtree is empty, return a new node
+    if (root == NULL) {
+        return createNode(value);
+    }
+    if (value < root->data) {
+        root->left = insert(root->left, value);
+    } else if (value > root->data) {
+        root->right = insert(root->right, value);
+    }
+    return root;
 }
 
-double post(char expr[])
-{
-    char ch;
-    char *type = "";
-    double result = 0, val, op1, op2;
-    int i;
-
-    st.top = -1;
-    i = 0;
-    ch = expr[i];
-
-    while (ch != '$')
-    {
-        type = "";
-        if (ch >= '0' && ch <= '9')
-            type = "operand";
-        else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^')
-            type = "operator";
-
-        if (strcmp(type, "operand") == 0)
-        {
-            val = ch - 48;
-            push(val);
-        }
-        else if (strcmp(type, "operator") == 0)
-        {
-            op2 = pop();
-            op1 = pop();
-
-            switch (ch)
-            {
-                case '+': result = op1 + op2; break;
-                case '-': result = op1 - op2; break;
-                case '*': result = op1 * op2; break;
-                case '/': result = op1 / op2; break;
-                case '^': result = pow(op1, op2); break;
-            }
-            push(result);
-        }
-        i++;
-        ch = expr[i];
+void inorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        inorderTraversal(root->left);
+        printf("%d ", root->data);
+        inorderTraversal(root->right);
     }
-    result = pop();
-    return result;
 }
-
-void push(double val)
-{
-    if (st.top >= size - 1)
-    {
-        printf("\n Stack full");
-        return;
+void preorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        preorderTraversal(root->left);
+        preorderTraversal(root->right);
     }
-    st.top++;
-    st.s[st.top] = val;
 }
-
-double pop(void)
-{
-    double val;
-    if (st.top == -1)
-    {
-        printf("\n Stack is empty");
-        return 0;
+void postorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        postorderTraversal(root->left);
+        postorderTraversal(root->right);
+        printf("%d ", root->data);
     }
-    val = st.s[st.top];
-    st.top--;
-    return val;
+}
+int main() {
+    struct Node* root = NULL;
+    root = insert(root, 50);
+    insert(root, 30);
+    insert(root, 20);
+    insert(root, 40);
+    insert(root, 70);
+    insert(root, 60);
+    insert(root, 80);
+    printf("Inorder traversal (sorted): ");
+    inorderTraversal(root);
+    printf("\n");
+    printf("Preorder traversal:         ");
+    preorderTraversal(root);
+    printf("\n");
+    printf("Postorder traversal:        ");
+    postorderTraversal(root);
+    printf("\n\n");
+  return 0;
 }
